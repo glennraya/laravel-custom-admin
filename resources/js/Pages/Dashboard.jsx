@@ -4,17 +4,10 @@ import { Head } from '@inertiajs/react'
 
 export default function Dashboard({ auth }) {
     return (
-        <RootLayout
-            user={auth.user}
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
+        <RootLayout user={auth.user}>
             <Head title="Dashboard" />
 
-            <div className="container mx-auto h-screen sm:px-6 lg:px-8"></div>
+            <div className="h-screen grow sm:px-6 lg:px-8"></div>
         </RootLayout>
     )
 }
