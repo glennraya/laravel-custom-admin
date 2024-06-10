@@ -1,5 +1,6 @@
 import { HomeIcon, InboxIcon, GearIcon, DocIcon } from '@/Components/Icons'
 import NavLink from '@/Components/NavLink'
+import { router } from '@inertiajs/react'
 import {
     Dropdown,
     DropdownTrigger,
@@ -17,9 +18,9 @@ const RootLayout = ({ user, header, children }) => {
                     <nav className="flex h-screen w-64 flex-col justify-between">
                         <div className="flex flex-col">
                             <h1 className="p-6 text-xl font-bold dark:text-white">
-                                Talkativ
+                                Posterize
                             </h1>
-                            <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-800">
+                            <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-900">
                                 <NavLink
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
@@ -35,10 +36,6 @@ const RootLayout = ({ user, header, children }) => {
                                 <NavLink className="flex items-center gap-2">
                                     <DocIcon />
                                     <span>Reports</span>
-                                </NavLink>
-                                <NavLink className="flex items-center gap-2">
-                                    <GearIcon />
-                                    <span>Preferences</span>
                                 </NavLink>
                             </div>
                         </div>
@@ -70,28 +67,22 @@ const RootLayout = ({ user, header, children }) => {
                                             Signed in as
                                         </p>
                                         <p className="font-bold">
-                                            @tonyreichert
+                                            {user.email}
                                         </p>
                                     </DropdownItem>
-                                    <DropdownItem key="settings">
-                                        My Settings
-                                    </DropdownItem>
-                                    <DropdownItem key="team_settings">
-                                        Team Settings
-                                    </DropdownItem>
-                                    <DropdownItem key="analytics">
-                                        Analytics
-                                    </DropdownItem>
-                                    <DropdownItem key="system">
-                                        System
-                                    </DropdownItem>
                                     <DropdownItem key="configurations">
-                                        Configurations
+                                        Settings
                                     </DropdownItem>
                                     <DropdownItem key="help_and_feedback">
                                         Help & Feedback
                                     </DropdownItem>
-                                    <DropdownItem key="logout" color="danger">
+                                    <DropdownItem
+                                        key="logout"
+                                        color="danger"
+                                        onPress={() => {
+                                            router.post('/logout')
+                                        }}
+                                    >
                                         Log Out
                                     </DropdownItem>
                                 </DropdownMenu>
@@ -99,7 +90,7 @@ const RootLayout = ({ user, header, children }) => {
                         </div>
                     </nav>
                 </div>
-                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm shadow-black/5 md:ml-64 dark:border-gray-800 dark:bg-gray-900/70">
+                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-64 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}
                 </main>
             </div>

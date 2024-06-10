@@ -16,11 +16,11 @@ export default {
         extend: {
             fontFamily: {
                 sans: [
-                    'Inter',
-                    {
-                        fontFeatureSettings: '"cv11", "ss01"',
-                        fontVariationSettings: '"opsz" 32'
-                    },
+                    'DM Sans',
+                    // {
+                    //     fontFeatureSettings: '"cv11", "ss01"',
+                    //     fontVariationSettings: '"opsz" 32'
+                    // },
                     ...defaultTheme.fontFamily.sans
                 ]
             }
