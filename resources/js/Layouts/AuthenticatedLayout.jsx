@@ -1,125 +1,154 @@
-import { useState } from 'react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
+import { HomeIcon, InboxIcon, GearIcon, DocIcon } from '@/Components/Icons'
+import NavLink from '@/Components/NavLink'
+import { router } from '@inertiajs/react'
+import {
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    Avatar,
+    User,
+    Link,
+    Image,
+    ScrollShadow
+} from '@nextui-org/react'
+import { useEffect, useState } from 'react'
 
-export default function Authenticated({ user, header, children }) {
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+const AuthenticatedLayout = ({ user, header, children }) => {
+    const [team, setTeam] = useState([])
 
+    useEffect(() => {
+        axios.get('/team').then(response => {
+            console.log(response.data)
+            setTeam(response.data)
+        })
+    }, [])
     return (
-        <div className="min-h-screen bg-gray-100">
-            <nav className="bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
-                            </div>
-
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
-                                </NavLink>
+        <>
+            <div className="flex min-h-svh">
+                <div className="fixed inset-y-0 left-0 hidden md:flex">
+                    <div className="flex h-screen w-64 flex-col justify-between">
+                        <div className="flex flex-col gap-y-8">
+                            <nav className="flex flex-col">
+                                <h1 className="p-6 text-xl font-bold dark:text-white">
+                                    Whisper
+                                </h1>
+                                <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-900">
+                                    <NavLink
+                                        href={route('dashboard')}
+                                        active={route().current('dashboard')}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <HomeIcon />
+                                        <span className="pt-1">Home</span>
+                                    </NavLink>
+                                    <NavLink className="flex items-center gap-2">
+                                        <InboxIcon />
+                                        <span>Inbox</span>
+                                    </NavLink>
+                                    <NavLink className="flex items-center gap-2">
+                                        <DocIcon />
+                                        <span>Reports</span>
+                                    </NavLink>
+                                </div>
+                            </nav>
+                            <div className="flex flex-col px-4">
+                                <h2 className="mb-8 text-lg font-bold">
+                                    Your so called "friends"
+                                </h2>
+                                <ScrollShadow className="flex max-h-96 flex-col gap-4 overflow-y-scroll">
+                                    {team.map(member => (
+                                        <div className="flex items-center gap-2">
+                                            <Image
+                                                alt={member.name}
+                                                className="w-full object-cover"
+                                                height={48}
+                                                src={`https://ui-avatars.com/api/?size=256&name=${member.name}`}
+                                                width={48}
+                                                radius="full"
+                                            />
+                                            <div className="flex flex-col">
+                                                <span className="text-medium flex font-medium">
+                                                    {member.name}
+                                                </span>
+                                                <span className="text-default-500 text-sm">
+                                                    {member.role}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </ScrollShadow>
                             </div>
                         </div>
 
-                        <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                        <div className="flex items-center gap-4 p-8">
+                            <Dropdown
+                                placement="bottom-start"
+                                className="dark:bg-gray-900 dark:text-white"
+                            >
+                                <DropdownTrigger>
+                                    <User
+                                        as="button"
+                                        avatarProps={{
+                                            src: 'https://i.pravatar.cc/150?u=a042581f4e29026024d'
+                                        }}
+                                        className="text-2xl transition-transform dark:text-white"
+                                        description={
+                                            <span className="text-sm">
+                                                {user.email}
+                                            </span>
+                                        }
+                                        name={
+                                            <Link
+                                                size="md"
+                                                className="text-black dark:text-white"
                                             >
                                                 {user.name}
-
-                                                <svg
-                                                    className="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
-                            >
-                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
+                                            </Link>
+                                        }
                                     />
-                                    <path
-                                        className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
+                                </DropdownTrigger>
+                                <DropdownMenu
+                                    aria-label="User Actions"
+                                    variant="flat"
+                                >
+                                    <DropdownItem
+                                        key="profile"
+                                        className="h-14 gap-2"
+                                    >
+                                        <p className="font-bold">
+                                            Signed in as
+                                        </p>
+                                        <p className="font-bold">
+                                            {user.email}
+                                        </p>
+                                    </DropdownItem>
+                                    <DropdownItem key="configurations">
+                                        Settings
+                                    </DropdownItem>
+                                    <DropdownItem key="help_and_feedback">
+                                        Help & Feedback
+                                    </DropdownItem>
+                                    <DropdownItem
+                                        key="logout"
+                                        color="danger"
+                                        onPress={() => {
+                                            router.post('/logout')
+                                        }}
+                                    >
+                                        Log Out
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
                         </div>
                     </div>
                 </div>
-
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="pt-4 pb-1 border-t border-gray-200">
-                        <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-                </header>
-            )}
-
-            <main>{children}</main>
-        </div>
-    );
+                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-64 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
+                    {children}
+                </main>
+            </div>
+        </>
+    )
 }
+
+export default AuthenticatedLayout
