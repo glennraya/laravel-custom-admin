@@ -19,15 +19,15 @@ const AuthenticatedLayout = ({ user, header, children }) => {
 
     useEffect(() => {
         axios.get('/team').then(response => {
-            console.log(response.data)
             setTeam(response.data)
         })
     }, [])
+
     return (
         <>
             <div className="flex min-h-svh">
                 <div className="fixed inset-y-0 left-0 hidden md:flex">
-                    <div className="flex h-screen w-64 flex-col justify-between">
+                    <div className="flex h-screen w-80 flex-col justify-between">
                         <div className="flex flex-col gap-y-8">
                             <nav className="flex flex-col">
                                 <h1 className="p-6 text-xl font-bold dark:text-white">
@@ -53,25 +53,33 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                                 </div>
                             </nav>
                             <div className="flex flex-col px-4">
-                                <h2 className="mb-8 text-lg font-bold">
-                                    Your so called "friends"
+                                <h2 className="mb-8 text-lg font-bold dark:text-white">
+                                    Friends{' '}
+                                    <span className="text-sm text-gray-500 dark:text-gray-600">
+                                        (Who secretly hate you!)
+                                    </span>
                                 </h2>
-                                <ScrollShadow className="flex max-h-96 flex-col gap-4 overflow-y-scroll">
+                                <ScrollShadow
+                                    size={150}
+                                    className="flex max-h-96 flex-col gap-4 overflow-y-scroll"
+                                >
                                     {team.map(member => (
-                                        <div className="flex items-center gap-2">
-                                            <Image
-                                                alt={member.name}
-                                                className="w-full object-cover"
-                                                height={48}
-                                                src={`https://ui-avatars.com/api/?size=256&name=${member.name}`}
-                                                width={48}
+                                        <div
+                                            className="flex items-center gap-2 px-4 py-1"
+                                            key={member.id}
+                                        >
+                                            <Avatar
                                                 radius="full"
+                                                isBordered
+                                                color="success"
+                                                className="shadow-lg shadow-green-400"
+                                                src={`https://ui-avatars.com/api/?size=256&name=${member.name}`}
                                             />
                                             <div className="flex flex-col">
-                                                <span className="text-medium flex font-medium">
+                                                <span className="flex cursor-pointer text-medium font-medium dark:text-white">
                                                     {member.name}
                                                 </span>
-                                                <span className="text-default-500 text-sm">
+                                                <span className="text-sm text-default-500">
                                                     {member.role}
                                                 </span>
                                             </div>
@@ -81,7 +89,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 p-8">
+                        <div className="flex items-center gap-4 px-4 pb-4">
                             <Dropdown
                                 placement="bottom-start"
                                 className="dark:bg-gray-900 dark:text-white"
@@ -143,7 +151,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                         </div>
                     </div>
                 </div>
-                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-64 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
+                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}
                 </main>
             </div>

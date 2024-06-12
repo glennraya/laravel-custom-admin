@@ -16,9 +16,9 @@ export default {
         extend: {
             fontFamily: {
                 sans: [
-                    'DM Sans',
+                    'Inter',
                     {
-                        // fontFeatureSettings: '"cv11", "ss01"',
+                        fontFeatureSettings: '"cv11", "ss01"',
                         fontVariationSettings: '"opsz" 32'
                     },
                     ...defaultTheme.fontFamily.sans
