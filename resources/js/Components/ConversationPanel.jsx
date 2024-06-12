@@ -3,8 +3,6 @@ import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 
 const ConversationPanel = ({ user, isOpenConvo, onCloseConvo }) => {
-    const [closeConvo, setCloseConvo] = useState(true)
-
     // Close the conversation dialog.
     const handleClose = () => {
         onCloseConvo(false)

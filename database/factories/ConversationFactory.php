@@ -17,8 +17,8 @@ class ConversationFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => 1,
-            'sender_id' => 2,
+            'user_id' => 2,
+            'sender_id' => 3,
             'message' => fake()->paragraph(),
         ];
     }

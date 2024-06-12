@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ConversationController extends Controller
 {
+    public function getConversation(Request $request)
+    {
+        return Conversation::where('user_id', Auth::id())
+            ->where('sender_id', $request->id)
+            ->get();
+    }
+
     /**
      * Display a listing of the resource.
      */

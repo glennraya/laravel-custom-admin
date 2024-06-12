@@ -20,8 +20,8 @@ import { useEffect, useState } from 'react'
 
 const AuthenticatedLayout = ({ user, header, children }) => {
     const [team, setTeam] = useState([])
-    const [isOpenConvo, setIsOpenConvo] = useState(true)
-    const [selectedUser, setSelectedUser] = useState(null)
+    const [isOpenConvo, setIsOpenConvo] = useState(false)
+    const [conversation, setConversation] = useState(null)
 
     // Emit an event to the conversation dialog to close it.
     const handleCloseConvo = () => {
@@ -29,8 +29,12 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     }
 
     // Load the user's conversation for the selected user.
-    const handleSelectUser = id => {
+    const handleSelectUser = async id => {
         console.log(id)
+        await axios.get('/conversations/' + id).then(response => {
+            console.log(response.data)
+            setIsOpenConvo(true)
+        })
     }
 
     useEffect(() => {
@@ -77,7 +81,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                                 </h2>
                                 <ScrollShadow
                                     size={150}
-                                    className="flex max-h-96 flex-col gap-4 overflow-y-scroll py-2"
+                                    className="flex max-h-96 flex-col gap-4 overflow-y-scroll scroll-smooth py-2"
                                 >
                                     {team.map(member => (
                                         <div
