@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TeamController extends Controller
 {
@@ -13,7 +14,7 @@ class TeamController extends Controller
     public function __invoke()
     {
         return User::whereNot(function (Builder $query) {
-            $query->where('role', 'Product Owner');
+            $query->where('id', Auth::id());
         })
             ->get();
     }

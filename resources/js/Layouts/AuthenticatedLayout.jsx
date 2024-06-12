@@ -1,3 +1,5 @@
+import ConversationPanel from '@/Components/ConversationPanel'
+import ConvoBubble from '@/Components/ConvoBubble'
 import { HomeIcon, InboxIcon, GearIcon, DocIcon } from '@/Components/Icons'
 import NavLink from '@/Components/NavLink'
 import { router } from '@inertiajs/react'
@@ -10,12 +12,26 @@ import {
     User,
     Link,
     Image,
-    ScrollShadow
+    ScrollShadow,
+    Button,
+    Textarea
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 
 const AuthenticatedLayout = ({ user, header, children }) => {
     const [team, setTeam] = useState([])
+    const [isOpenConvo, setIsOpenConvo] = useState(true)
+    const [selectedUser, setSelectedUser] = useState(null)
+
+    // Emit an event to the conversation dialog to close it.
+    const handleCloseConvo = () => {
+        setIsOpenConvo(false)
+    }
+
+    // Load the user's conversation for the selected user.
+    const handleSelectUser = id => {
+        console.log(id)
+    }
 
     useEffect(() => {
         axios.get('/team').then(response => {
@@ -25,13 +41,13 @@ const AuthenticatedLayout = ({ user, header, children }) => {
 
     return (
         <>
-            <div className="flex min-h-svh">
+            <div className="relative flex min-h-svh">
                 <div className="fixed inset-y-0 left-0 hidden md:flex">
                     <div className="flex h-screen w-80 flex-col justify-between">
                         <div className="flex flex-col gap-y-8">
                             <nav className="flex flex-col">
                                 <h1 className="p-6 text-xl font-bold dark:text-white">
-                                    Whisper
+                                    Silent Whisperer
                                 </h1>
                                 <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-900">
                                     <NavLink
@@ -61,18 +77,25 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                                 </h2>
                                 <ScrollShadow
                                     size={150}
-                                    className="flex max-h-96 flex-col gap-4 overflow-y-scroll"
+                                    className="flex max-h-96 flex-col gap-4 overflow-y-scroll py-2"
                                 >
                                     {team.map(member => (
                                         <div
-                                            className="flex items-center gap-2 px-4 py-1"
+                                            className="flex cursor-pointer items-center gap-2 px-4 py-1"
                                             key={member.id}
+                                            onClick={() =>
+                                                handleSelectUser(member.id)
+                                            }
                                         >
                                             <Avatar
                                                 radius="full"
                                                 isBordered
-                                                color="success"
-                                                className="shadow-lg shadow-green-400"
+                                                color={
+                                                    member.active === 1
+                                                        ? 'success'
+                                                        : 'default'
+                                                }
+                                                className={`shadow-lg ${member.active === 1 ? 'shadow-green-400' : null}`}
                                                 src={`https://ui-avatars.com/api/?size=256&name=${member.name}`}
                                             />
                                             <div className="flex flex-col">
@@ -151,6 +174,14 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                         </div>
                     </div>
                 </div>
+
+                {/* Chat box */}
+                <ConversationPanel
+                    user={user}
+                    isOpenConvo={isOpenConvo}
+                    onCloseConvo={handleCloseConvo}
+                />
+
                 <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}
                 </main>
