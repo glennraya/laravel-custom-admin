@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/team', TeamController::class);
 
-    Route::get('/conversations/{id}', [ConversationController::class, 'getConversation']);
+    Route::get('/conversations/{id}', [ConversationController::class, 'show']);
 });
 
 require __DIR__.'/auth.php';

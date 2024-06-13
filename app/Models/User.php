@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -50,10 +51,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all the conversations for a user.
+     * The conversations that the user is part of.
      */
-    public function conversations(): HasMany
+    public function conversations(): BelongsToMany
     {
-        return $this->hasMany(Conversation::class);
+        return $this->belongsToMany(Conversation::class);
+    }
+
+    /**
+     * The messages sent by the user.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
     }
 }

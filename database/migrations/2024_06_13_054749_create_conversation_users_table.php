@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('conversations', function (Blueprint $table) {
+        Schema::create('conversation_users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('created_by');
-            $table->foreign('created_by')
-                ->references('id')
+            $table->unsignedBigInteger('conversation_id');
+            $table->unsignedBigInteger('user_id');
+
+            $table->foreign('conversation_id')->references('id')
+                ->on('conversations')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')->references('id')
                 ->on('users')
                 ->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('conversations');
+        Schema::dropIfExists('conversation_users');
     }
 };

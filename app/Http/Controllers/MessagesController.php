@@ -2,19 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Conversation;
+use App\Models\Messages;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class ConversationController extends Controller
+class MessagesController extends Controller
 {
-    public function getConversation(Request $request)
-    {
-        return Conversation::where('user_id', Auth::id())
-            ->where('sender_id', $request->id)
-            ->get();
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -42,18 +34,15 @@ class ConversationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Conversation $conversation, Request $request)
+    public function show(Messages $messages)
     {
-        // Fetch the conversation with its messages and participants
-        $convo = Conversation::with(['messages.sender', 'users'])->findOrFail($request->id);
-
-        return response()->json($convo);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Conversation $conversation)
+    public function edit(Messages $messages)
     {
         //
     }
@@ -61,7 +50,7 @@ class ConversationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Conversation $conversation)
+    public function update(Request $request, Messages $messages)
     {
         //
     }
@@ -69,7 +58,7 @@ class ConversationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Conversation $conversation)
+    public function destroy(Messages $messages)
     {
         //
     }

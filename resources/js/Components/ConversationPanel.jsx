@@ -29,7 +29,7 @@ const ConversationPanel = ({ user, isOpenConvo, onCloseConvo }) => {
 
                         <Button
                             radius="full"
-                            size="sm"
+                            size="md"
                             color="none"
                             isIconOnly
                             onClick={() => handleClose(false)}
@@ -40,7 +40,7 @@ const ConversationPanel = ({ user, isOpenConvo, onCloseConvo }) => {
                                 viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg"
                                 aria-hidden="true"
-                                className="text-white"
+                                className="size-12 text-gray-400 dark:text-white"
                             >
                                 <path
                                     clipRule="evenodd"
