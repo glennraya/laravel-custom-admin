@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('created_by');
-            $table->foreign('created_by')
+            $table->unsignedBigInteger('user_id');
+
+            $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');

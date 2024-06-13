@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/team', TeamController::class);
 
     Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+    Route::post('/create-conversation', [ConversationController::class, 'store']);
 });
 
 require __DIR__.'/auth.php';

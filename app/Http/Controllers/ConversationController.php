@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ConversationRequest;
 use App\Models\Conversation;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ConversationController extends Controller
 {
-    public function getConversation(Request $request)
-    {
-        return Conversation::where('user_id', Auth::id())
-            ->where('sender_id', $request->id)
-            ->get();
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -34,18 +29,26 @@ class ConversationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ConversationRequest $request)
     {
-        //
+        // return $request;
+        $conversation = Conversation::create([
+            'user_id' => Auth::id(),
+        ]);
+
+        // Attach the users to the conversation
+        $conversation->users()->attach($request->user_ids);
+
+        return response()->json($conversation, 201);
     }
 
     /**
-     * Display the specified resource.
+     * Fetch the conversation with its messages and participants
      */
-    public function show(Conversation $conversation, Request $request)
+    public function show(Conversation $conversation, Request $request): JsonResponse
     {
-        // Fetch the conversation with its messages and participants
-        $convo = Conversation::with(['messages.sender', 'users'])->findOrFail($request->id);
+        $convo = Conversation::with(['messages.sender', 'users'])
+            ->find($request->id);
 
         return response()->json($convo);
     }

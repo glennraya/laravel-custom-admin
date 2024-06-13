@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[ScopedBy([ConversationScope::class])]
+// #[ScopedBy([ConversationScope::class])]
 class Conversation extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['user_id'];
 
     /**
      * The users that belong to the conversation.

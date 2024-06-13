@@ -30,10 +30,17 @@ const AuthenticatedLayout = ({ user, header, children }) => {
 
     // Load the user's conversation for the selected user.
     const handleSelectUser = async id => {
-        console.log(id)
-        // setIsOpenConvo(true)
-        await axios.get('/conversations/' + id).then(response => {
-            console.log(response.data)
+        // console.log(id)
+        // axios
+        //     .post('/create-conversation', {
+        //         user_ids: [id, user.id]
+        //     })
+        //     .then(response => {
+        //         console.log(response)
+        //         setIsOpenConvo(true)
+        //     })
+        axios.get('/conversations/' + id).then(response => {
+            console.log(response)
             setIsOpenConvo(true)
         })
     }
