@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ConversationController extends Controller
@@ -47,7 +48,7 @@ class ConversationController extends Controller
         $receiver = User::find($request->user_two_id);
 
         return response()->json([
-            'conversation' => $conversation,
+            'conversation' => $conversation->load('messages'),
             'receiver' => $receiver,
         ], 201);
     }

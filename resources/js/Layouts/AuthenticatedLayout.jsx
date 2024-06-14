@@ -33,7 +33,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 user_two_id: receiver_id
             })
             .then(response => {
-                console.log(response)
+                console.log('Conversation: ', response)
                 setIsOpenConvo(true)
                 setConversation(response.data.conversation)
                 setReceiver(response.data.receiver)

@@ -19,6 +19,7 @@ const ConversationPanel = ({
                 setChatThread(response.data)
                 console.log('Thread: ', response.data)
             })
+
         } else {
             setChatThread([])
         }
@@ -93,8 +94,8 @@ const ConversationPanel = ({
                             {chatThread.length > 0
                                 ? chatThread.map(thread => (
                                       <ConvoBubble
-                                          user={user}
-                                          sender={thread.sender}
+                                          user={user} // -> The currently authenticated user.
+                                          sender={thread.sender} // -> The sender of the message.
                                           message={thread.message}
                                           key={thread.id}
                                       />
