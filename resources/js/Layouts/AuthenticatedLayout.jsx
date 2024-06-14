@@ -26,18 +26,13 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     }
 
     // Load the user's conversation for the selected user.
-    const handleSelectUser = async receiver_id => {
-        await axios
-            .post('/create-conversation', {
-                user_one_id: user.id,
-                user_two_id: receiver_id
-            })
-            .then(response => {
-                console.log('Conversation: ', response)
-                setIsOpenConvo(true)
-                setConversation(response.data.conversation)
-                setReceiver(response.data.receiver)
-            })
+    const handleSelectUser = async recipient_id => {
+        await axios.get('/get-messages/' + recipient_id).then(response => {
+            console.log('Conversation: ', response)
+            setIsOpenConvo(true)
+            // setConversation(response.data.conversation)
+            // setReceiver(response.data.receiver)
+        })
     }
 
     useEffect(() => {
@@ -183,13 +178,13 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 </div>
 
                 {/* Chat box */}
-                <ConversationPanel
+                {/* <ConversationPanel
                     user={user}
                     receiver={receiver}
                     conversation={conversation}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
-                />
+                /> */}
 
                 <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}

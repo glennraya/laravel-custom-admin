@@ -22,9 +22,9 @@ class MessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'conversation_id' => 'required|exists:conversations,id',
             'sender_id' => 'required|exists:users,id',
-            'message' => 'required|string',
+            'recipient_id' => 'required|exists:users,id',
+            'content' => 'required|string',
         ];
     }
 }

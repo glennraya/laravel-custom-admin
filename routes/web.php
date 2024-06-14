@@ -28,8 +28,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/team', TeamController::class);
 
-    Route::get('/get-conversation/{id}', [ConversationController::class, 'show']);
-    Route::post('/create-conversation', [ConversationController::class, 'store']);
+    // Route::get('/get-conversation/{id}', [ConversationController::class, 'show']);
+    // Route::post('/create-conversation', [ConversationController::class, 'store']);
 
     Route::get('/get-messages/{id}', [MessageController::class, 'show']);
     Route::resource('/messages', MessageController::class);
