@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 
@@ -12,12 +12,17 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
             chatContainerRef.current.scrollTop =
                 chatContainerRef.current.scrollHeight
         }
+        // const timer = setTimeout(() => {
+        //     axios.get(nextMessage).then(response => {
+        //         console.log('Next Page: ', response)
+        //     })
+        // }, 300)
     }
 
     useEffect(() => {
         if (peer && isOpenConvo) {
             axios.get('/get-messages/' + peer.id).then(response => {
-                console.log('Thread: ', response.data.messages.data)
+                console.log('Thread: ', response.data)
                 setChatThread(response.data.messages.data)
 
                 // Scroll to the latest message.
@@ -36,6 +41,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
         setChatThread(null)
     }
 
+    // Send message to your so-called friend.
     const handleSendMessage = async () => {
         await axios
             .post('/messages', {
@@ -44,7 +50,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                 message: message
             })
             .then(response => {
-                console.log(response)
+                console.log('Message Payload: ', response)
                 setMessage('')
             })
     }
@@ -96,17 +102,19 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                         size={25}
                         ref={chatContainerRef}
                         className="flex min-h-96 w-full flex-col overflow-y-scroll p-4 py-8"
-                        onVisibilityChange={() => console.log('xxx')}
                     >
                         <div className="flex w-full flex-col gap-8">
-                            {/* {chatThread.data.map(thread => (
-                                <ConvoBubble
-                                    user={user} // -> The currently authenticated user.
-                                    message={thread} // -> The message thread.
-                                    key={thread.id}
-                                />
-                            ))} */}
-                            {chatThread.length > 0
+                            {chatThread
+                                .slice()
+                                .reverse()
+                                .map(thread => (
+                                    <ConvoBubble
+                                        user={user} // -> The currently authenticated user.
+                                        message={thread} // -> The message thread.
+                                        key={thread.id}
+                                    />
+                                ))}
+                            {/* {chatThread.length > 0
                                 ? chatThread.map(thread => (
                                       <ConvoBubble
                                           user={user} // -> The currently authenticated user.
@@ -114,7 +122,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                                           key={thread.id}
                                       />
                                   ))
-                                : null}
+                                : null} */}
                         </div>
                     </ScrollShadow>
                     <div className="flex w-full items-center gap-2 p-2">

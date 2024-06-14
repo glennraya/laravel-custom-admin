@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
 use App\Http\Requests\MessageRequest;
 use App\Models\Message;
 use App\Models\User;
@@ -46,7 +47,9 @@ class MessageController extends Controller
         DB::commit();
 
         // Broadcast the message here if needed
-        return response()->json($message, 201);
+        // broadcast(new MessageSent($message));
+
+        return response()->json($message->load('sender'), 201);
     }
 
     /**
@@ -66,8 +69,8 @@ class MessageController extends Controller
                 ->where('recipient_id', $auth_user_id);
         })
         ->with(['sender', 'recipient'])
-        ->orderBy('created_at', 'asc') // Or 'desc' depending on your needs
-        ->cursorPaginate(7);
+        ->orderBy('id', 'desc')
+        ->paginate(7);
 
         return response()->json([
             'messages' => $messages,
