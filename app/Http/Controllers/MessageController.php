@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MessageRequest;
 use App\Models\Message;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class MessagesController extends Controller
+class MessageController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,17 +28,24 @@ class MessagesController extends Controller
     /**
      * Send a message
      */
-    public function store(Request $request)
+    public function store(MessageRequest $request): JsonResponse
     {
-        //
+        $message = Message::create($request->toArray());
+
+        // Broadcast the message here if needed
+        return response()->json($message, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Message $message)
+    public function show(Request $request)
     {
-        //
+        $messages = Message::where('conversation_id', $request->id)
+                       ->with('sender')
+                       ->get();
+
+        return response()->json($messages);
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ConversationController;
-use App\Http\Controllers\MessagesController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Foundation\Application;
@@ -28,10 +28,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/team', TeamController::class);
 
-    Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+    Route::get('/get-conversation/{id}', [ConversationController::class, 'show']);
     Route::post('/create-conversation', [ConversationController::class, 'store']);
 
-    Route::resource('/messages', MessagesController::class);
+    Route::get('/get-messages/{id}', [MessageController::class, 'show']);
+    Route::resource('/messages', MessageController::class);
 });
 
 require __DIR__.'/auth.php';

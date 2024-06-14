@@ -35,7 +35,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
             .then(response => {
                 console.log(response)
                 setIsOpenConvo(true)
-                setReceiverId(receiver_id)
+                setConversation(response.data)
             })
         // axios.get('/conversations/' + id).then(response => {
         //     console.log(response)
@@ -188,7 +188,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 {/* Chat box */}
                 <ConversationPanel
                     user={user}
-                    receiverId={receiverId}
+                    conversation={conversation}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
                 />

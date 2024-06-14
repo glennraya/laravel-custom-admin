@@ -45,10 +45,12 @@ class ConversationController extends Controller
      */
     public function show(Conversation $conversation, Request $request): JsonResponse
     {
-        $convo = Conversation::with(['messages.sender', 'users'])
-            ->find($request->id);
+        $conversations = Conversation::where('user_one_id', $request->id)
+                                 ->orWhere('user_two_id', $request->id)
+                                 ->with(['userOne', 'userTwo'])
+                                 ->get();
 
-        return response()->json($convo);
+        return response()->json($conversations);
     }
 
     /**

@@ -1,15 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 
-const ConversationPanel = ({ user, receiverId, isOpenConvo, onCloseConvo }) => {
+const ConversationPanel = ({
+    user,
+    conversation,
+    isOpenConvo,
+    onCloseConvo
+}) => {
+    const [chatThread, setChatThread] = useState(null)
+    const [message, setMessage] = useState('')
+
+    useEffect(() => {
+        setChatThread(conversation)
+        if (isOpenConvo)
+            // axios.get('/get-conversation/' + user.id).then(response => {
+            //     console.log(response)
+            // })
+            axios.get('/get-messages/' + conversation.id).then(response => {
+                console.log(response)
+            })
+    }, [conversation])
+
     // Close the conversation dialog.
     const handleClose = () => {
         onCloseConvo(false)
+        setChatThread(null)
     }
 
     const handleSendMessage = () => {
-        //
+        axios
+            .post('/messages', {
+                conversation_id: conversation.id,
+                sender_id: user.id,
+                message: message
+            })
+            .then(response => {
+                console.log(response)
+            })
     }
 
     return (
@@ -76,6 +104,8 @@ const ConversationPanel = ({ user, receiverId, isOpenConvo, onCloseConvo }) => {
                                     'dark:bg-gray-900 dark:hover:bg-gray-800',
                                 input: 'dark:group-focus:bg-gray-800'
                             }}
+                            value={message}
+                            onValueChange={setMessage}
                         />
                         <Button
                             size="lg"
