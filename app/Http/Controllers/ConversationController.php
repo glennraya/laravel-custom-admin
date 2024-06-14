@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ConversationRequest;
 use App\Models\Conversation;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ConversationController extends Controller
 {
@@ -31,24 +33,34 @@ class ConversationController extends Controller
      */
     public function store(ConversationRequest $request)
     {
-        // return $request;
-        $conversation = Conversation::firstOrCreate([
-            'user_one_id' => $request->user_one_id,
-            'user_two_id' => $request->user_two_id,
-        ]);
+        DB::beginTransaction();
+        try {
+            $conversation = Conversation::firstOrCreate($request->toArray());
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        return response()->json($conversation, 201);
+            return $e->getMessage();
+        }
+
+        DB::commit();
+
+        $receiver = User::find($request->user_two_id);
+
+        return response()->json([
+            'conversation' => $conversation,
+            'receiver' => $receiver,
+        ], 201);
     }
 
     /**
      * Fetch the conversation with its messages and participants
      */
-    public function show(Conversation $conversation, Request $request): JsonResponse
+    public function show(Request $request): JsonResponse
     {
         $conversations = Conversation::where('user_one_id', $request->id)
-                                 ->orWhere('user_two_id', $request->id)
-                                 ->with(['userOne', 'userTwo'])
-                                 ->get();
+            ->orWhere('user_two_id', $request->id)
+            ->with(['userOne', 'userTwo'])
+            ->get();
 
         return response()->json($conversations);
     }

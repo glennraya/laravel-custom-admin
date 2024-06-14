@@ -4,23 +4,25 @@ import ConvoBubble from './ConvoBubble'
 
 const ConversationPanel = ({
     user,
+    receiver,
     conversation,
     isOpenConvo,
     onCloseConvo
 }) => {
-    const [chatThread, setChatThread] = useState(null)
+    const [chatThread, setChatThread] = useState([])
     const [message, setMessage] = useState('')
 
     useEffect(() => {
         setChatThread(conversation)
-        if (isOpenConvo)
-            // axios.get('/get-conversation/' + user.id).then(response => {
-            //     console.log(response)
-            // })
+        if (conversation && isOpenConvo) {
             axios.get('/get-messages/' + conversation.id).then(response => {
-                console.log(response)
+                setChatThread(response.data)
+                console.log('Thread: ', response.data)
             })
-    }, [conversation])
+        } else {
+            setChatThread([])
+        }
+    }, [conversation, isOpenConvo, receiver])
 
     // Close the conversation dialog.
     const handleClose = () => {
@@ -28,8 +30,8 @@ const ConversationPanel = ({
         setChatThread(null)
     }
 
-    const handleSendMessage = () => {
-        axios
+    const handleSendMessage = async () => {
+        await axios
             .post('/messages', {
                 conversation_id: conversation.id,
                 sender_id: user.id,
@@ -52,10 +54,10 @@ const ConversationPanel = ({
                                 size="sm"
                                 color="success"
                                 className="shadow-lg shadow-green-400"
-                                src={`https://ui-avatars.com/api/?size=256&name=Lana Blakely`}
+                                src={`https://ui-avatars.com/api/?size=256&name=${receiver.name}`}
                             />
                             <span className="font-medium dark:text-white">
-                                Lana Blakely
+                                {receiver.name}
                             </span>
                         </div>
 
@@ -88,7 +90,16 @@ const ConversationPanel = ({
                         className="flex min-h-96 w-full flex-col overflow-y-scroll p-4 py-8"
                     >
                         <div className="flex w-full flex-col gap-8">
-                            <ConvoBubble user={user} />
+                            {chatThread.length > 0
+                                ? chatThread.map(thread => (
+                                      <ConvoBubble
+                                          user={user}
+                                          sender={thread.sender}
+                                          message={thread.message}
+                                          key={thread.id}
+                                      />
+                                  ))
+                                : null}
                         </div>
                     </ScrollShadow>
                     <div className="flex w-full items-center gap-2 p-2">

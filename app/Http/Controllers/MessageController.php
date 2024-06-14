@@ -42,8 +42,8 @@ class MessageController extends Controller
     public function show(Request $request)
     {
         $messages = Message::where('conversation_id', $request->id)
-                       ->with('sender')
-                       ->get();
+            ->with('sender')
+            ->get();
 
         return response()->json($messages);
     }

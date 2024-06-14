@@ -18,7 +18,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     const [team, setTeam] = useState([])
     const [isOpenConvo, setIsOpenConvo] = useState(false)
     const [conversation, setConversation] = useState(null)
-    const [receiverId, setReceiverId] = useState(null)
+    const [receiver, setReceiver] = useState(null)
 
     // Emit an event to the conversation dialog to close it.
     const handleCloseConvo = () => {
@@ -35,12 +35,9 @@ const AuthenticatedLayout = ({ user, header, children }) => {
             .then(response => {
                 console.log(response)
                 setIsOpenConvo(true)
-                setConversation(response.data)
+                setConversation(response.data.conversation)
+                setReceiver(response.data.receiver)
             })
-        // axios.get('/conversations/' + id).then(response => {
-        //     console.log(response)
-        //     setIsOpenConvo(true)
-        // })
     }
 
     useEffect(() => {
@@ -188,6 +185,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 {/* Chat box */}
                 <ConversationPanel
                     user={user}
+                    receiver={receiver}
                     conversation={conversation}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
