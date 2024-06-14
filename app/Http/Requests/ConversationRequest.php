@@ -22,8 +22,8 @@ class ConversationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_ids' => 'required|array|min:2',
-            'user_ids.*' => 'exists:users,id',
+            'user_one_id' => 'required|exists:users,id',
+            'user_two_id' => 'required|exists:users,id',
         ];
     }
 }

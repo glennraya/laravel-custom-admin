@@ -6,7 +6,6 @@ use App\Http\Requests\ConversationRequest;
 use App\Models\Conversation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ConversationController extends Controller
 {
@@ -27,17 +26,16 @@ class ConversationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a new conversation after clicking one of the users
+     * from the sidebar or retrieve the conversation if exists.
      */
     public function store(ConversationRequest $request)
     {
         // return $request;
-        $conversation = Conversation::create([
-            'user_id' => Auth::id(),
+        $conversation = Conversation::firstOrCreate([
+            'user_one_id' => $request->user_one_id,
+            'user_two_id' => $request->user_two_id,
         ]);
-
-        // Attach the users to the conversation
-        $conversation->users()->attach($request->user_ids);
 
         return response()->json($conversation, 201);
     }

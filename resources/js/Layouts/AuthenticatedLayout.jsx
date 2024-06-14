@@ -1,6 +1,5 @@
 import ConversationPanel from '@/Components/ConversationPanel'
-import ConvoBubble from '@/Components/ConvoBubble'
-import { HomeIcon, InboxIcon, GearIcon, DocIcon } from '@/Components/Icons'
+import { HomeIcon, InboxIcon, DocIcon } from '@/Components/Icons'
 import NavLink from '@/Components/NavLink'
 import { router } from '@inertiajs/react'
 import {
@@ -11,10 +10,7 @@ import {
     Avatar,
     User,
     Link,
-    Image,
-    ScrollShadow,
-    Button,
-    Textarea
+    ScrollShadow
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 
@@ -22,6 +18,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     const [team, setTeam] = useState([])
     const [isOpenConvo, setIsOpenConvo] = useState(false)
     const [conversation, setConversation] = useState(null)
+    const [receiverId, setReceiverId] = useState(null)
 
     // Emit an event to the conversation dialog to close it.
     const handleCloseConvo = () => {
@@ -29,20 +26,21 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     }
 
     // Load the user's conversation for the selected user.
-    const handleSelectUser = async id => {
-        // console.log(id)
-        // axios
-        //     .post('/create-conversation', {
-        //         user_ids: [id, user.id]
-        //     })
-        //     .then(response => {
-        //         console.log(response)
-        //         setIsOpenConvo(true)
-        //     })
-        axios.get('/conversations/' + id).then(response => {
-            console.log(response)
-            setIsOpenConvo(true)
-        })
+    const handleSelectUser = async receiver_id => {
+        await axios
+            .post('/create-conversation', {
+                user_one_id: user.id,
+                user_two_id: receiver_id
+            })
+            .then(response => {
+                console.log(response)
+                setIsOpenConvo(true)
+                setReceiverId(receiver_id)
+            })
+        // axios.get('/conversations/' + id).then(response => {
+        //     console.log(response)
+        //     setIsOpenConvo(true)
+        // })
     }
 
     useEffect(() => {
@@ -190,6 +188,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 {/* Chat box */}
                 <ConversationPanel
                     user={user}
+                    receiverId={receiverId}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
                 />

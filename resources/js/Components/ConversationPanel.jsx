@@ -2,10 +2,14 @@ import { useState } from 'react'
 import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 
-const ConversationPanel = ({ user, isOpenConvo, onCloseConvo }) => {
+const ConversationPanel = ({ user, receiverId, isOpenConvo, onCloseConvo }) => {
     // Close the conversation dialog.
     const handleClose = () => {
         onCloseConvo(false)
+    }
+
+    const handleSendMessage = () => {
+        //
     }
 
     return (
@@ -78,6 +82,7 @@ const ConversationPanel = ({ user, isOpenConvo, onCloseConvo }) => {
                             isIconOnly
                             radius="full"
                             variant="none"
+                            onClick={handleSendMessage}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

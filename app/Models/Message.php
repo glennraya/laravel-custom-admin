@@ -9,6 +9,10 @@ class Message extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'conversation_id', 'sender_id', 'message',
+    ];
+
     /**
      * The conversation that the message belongs to.
      */

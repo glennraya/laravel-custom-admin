@@ -14,14 +14,15 @@ class Conversation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_one_id', 'user_two_id'];
 
     /**
      * The users that belong to the conversation.
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'conversation_user')
+            ->withTimestamps();
     }
 
     /**
