@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MessageRequest;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -31,7 +33,17 @@ class MessageController extends Controller
      */
     public function store(MessageRequest $request): JsonResponse
     {
-        $message = Message::create($request->toArray());
+        DB::beginTransaction();
+
+        try {
+            $message = Message::create($request->toArray());
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return $e->getMessage();
+        }
+
+        DB::commit();
 
         // Broadcast the message here if needed
         return response()->json($message, 201);
@@ -42,14 +54,6 @@ class MessageController extends Controller
      */
     public function show(Request $request)
     {
-        // $messages = Message::where('sender_id', $request->id)
-        //                ->orWhere('recipient_id', $request->id)
-        //                ->with(['sender', 'recipient'])
-        //                ->orderBy('created_at', 'desc')
-        //                ->get();
-
-        // return response()->json($messages);
-
         $auth_user_id = Auth::id();
         $user_id = $request->id;
 
@@ -63,9 +67,12 @@ class MessageController extends Controller
         })
         ->with(['sender', 'recipient'])
         ->orderBy('created_at', 'asc') // Or 'desc' depending on your needs
-        ->get();
+        ->cursorPaginate(7);
 
-        return response()->json($messages);
+        return response()->json([
+            'messages' => $messages,
+            'peer' => User::find($user_id),
+        ]);
     }
 
     /**

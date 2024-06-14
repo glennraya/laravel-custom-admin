@@ -14,11 +14,10 @@ import {
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 
-const AuthenticatedLayout = ({ user, header, children }) => {
+const AuthenticatedLayout = ({ user, children }) => {
     const [team, setTeam] = useState([])
     const [isOpenConvo, setIsOpenConvo] = useState(false)
-    const [conversation, setConversation] = useState(null)
-    const [receiver, setReceiver] = useState(null)
+    const [peer, setPeer] = useState(null)
 
     // Emit an event to the conversation dialog to close it.
     const handleCloseConvo = () => {
@@ -26,13 +25,9 @@ const AuthenticatedLayout = ({ user, header, children }) => {
     }
 
     // Load the user's conversation for the selected user.
-    const handleSelectUser = async recipient_id => {
-        await axios.get('/get-messages/' + recipient_id).then(response => {
-            console.log('Conversation: ', response)
-            setIsOpenConvo(true)
-            // setConversation(response.data.conversation)
-            // setReceiver(response.data.receiver)
-        })
+    const handleSelectUser = peer_id => {
+        setIsOpenConvo(true)
+        setPeer(peer_id)
     }
 
     useEffect(() => {
@@ -49,7 +44,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                         <div className="flex flex-col gap-y-8">
                             <nav className="flex flex-col">
                                 <h1 className="p-6 text-xl font-bold dark:text-white">
-                                    Silent Whisperer
+                                    Shouting Whisperer
                                 </h1>
                                 <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-900">
                                     <NavLink
@@ -86,7 +81,7 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                                             className="flex cursor-pointer items-center gap-2 px-4 py-1"
                                             key={member.id}
                                             onClick={() =>
-                                                handleSelectUser(member.id)
+                                                handleSelectUser(member)
                                             }
                                         >
                                             <Avatar
@@ -178,13 +173,12 @@ const AuthenticatedLayout = ({ user, header, children }) => {
                 </div>
 
                 {/* Chat box */}
-                {/* <ConversationPanel
+                <ConversationPanel
                     user={user}
-                    receiver={receiver}
-                    conversation={conversation}
+                    peer={peer}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
-                /> */}
+                />
 
                 <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}

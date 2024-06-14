@@ -1,29 +1,34 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 
-const ConversationPanel = ({
-    user,
-    receiver,
-    conversation,
-    isOpenConvo,
-    onCloseConvo
-}) => {
+const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const [chatThread, setChatThread] = useState([])
     const [message, setMessage] = useState('')
 
-    useEffect(() => {
-        setChatThread(conversation)
-        if (conversation && isOpenConvo) {
-            axios.get('/get-messages/' + conversation.id).then(response => {
-                setChatThread(response.data)
-                console.log('Thread: ', response.data)
-            })
+    const chatContainerRef = useRef(null)
+    const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop =
+                chatContainerRef.current.scrollHeight
+        }
+    }
 
+    useEffect(() => {
+        if (peer && isOpenConvo) {
+            axios.get('/get-messages/' + peer.id).then(response => {
+                console.log('Thread: ', response.data.messages.data)
+                setChatThread(response.data.messages.data)
+
+                // Scroll to the latest message.
+                const timer = setTimeout(() => {
+                    scrollToBottom()
+                }, 100)
+            })
         } else {
             setChatThread([])
         }
-    }, [conversation, isOpenConvo, receiver])
+    }, [isOpenConvo, peer])
 
     // Close the conversation dialog.
     const handleClose = () => {
@@ -34,12 +39,13 @@ const ConversationPanel = ({
     const handleSendMessage = async () => {
         await axios
             .post('/messages', {
-                conversation_id: conversation.id,
                 sender_id: user.id,
+                recipient_id: peer.id,
                 message: message
             })
             .then(response => {
                 console.log(response)
+                setMessage('')
             })
     }
 
@@ -55,10 +61,10 @@ const ConversationPanel = ({
                                 size="sm"
                                 color="success"
                                 className="shadow-lg shadow-green-400"
-                                src={`https://ui-avatars.com/api/?size=256&name=${receiver.name}`}
+                                src={`https://ui-avatars.com/api/?size=256&name=${peer.name}`}
                             />
                             <span className="font-medium dark:text-white">
-                                {receiver.name}
+                                {peer.name}
                             </span>
                         </div>
 
@@ -87,16 +93,24 @@ const ConversationPanel = ({
                     </div>
 
                     <ScrollShadow
-                        size={150}
+                        size={25}
+                        ref={chatContainerRef}
                         className="flex min-h-96 w-full flex-col overflow-y-scroll p-4 py-8"
+                        onVisibilityChange={() => console.log('xxx')}
                     >
                         <div className="flex w-full flex-col gap-8">
+                            {/* {chatThread.data.map(thread => (
+                                <ConvoBubble
+                                    user={user} // -> The currently authenticated user.
+                                    message={thread} // -> The message thread.
+                                    key={thread.id}
+                                />
+                            ))} */}
                             {chatThread.length > 0
                                 ? chatThread.map(thread => (
                                       <ConvoBubble
                                           user={user} // -> The currently authenticated user.
-                                          sender={thread.sender} // -> The sender of the message.
-                                          message={thread.message}
+                                          message={thread} // -> The message thread.
                                           key={thread.id}
                                       />
                                   ))
