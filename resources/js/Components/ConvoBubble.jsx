@@ -12,11 +12,11 @@ const ConvoBubble = ({ user, thread }) => {
                     >
                         {thread.message}
                     </p>
-                    <span
+                    {/* <span
                         className={`text-sm font-medium text-gray-400 ${user.id === thread.sender.id ? 'text-right' : 'text-left'} dark:text-gray-600`}
                     >
                         {thread.created_at}
-                    </span>
+                    </span> */}
                 </div>
             </div>
         </>

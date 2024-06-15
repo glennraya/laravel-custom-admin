@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
+import { Avatar, Button, Kbd, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 import LoadingIcon from './LoadingIcon'
+import TypingIndicator from './TypingIndicator'
 
 const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const [chatThread, setChatThread] = useState([])
     const [message, setMessage] = useState('')
+    const [isTyping, setIsTyping] = useState(false)
+    const [peerUser, setPeerUser] = useState(null)
 
     // Chat box viewport reference.
     const chatContainerRef = useRef(null)
@@ -93,10 +96,31 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
         })
     }
 
+    // Send Typing event
+    const sendTypingEvent = () => {
+        console.log('Peer ', peer)
+        Echo.private(`messages.${peer.id}`).whisper('typing', {
+            user_id: user.id,
+            name: user.name
+        })
+    }
+
+    // Function to listen for typing events
+    const listenForTypingEvents = () => {
+        Echo.private(`messages.${user.id}`).listenForWhisper('typing', e => {
+            // if (e.user_id !== currentUser.id) {
+            console.log('typing.....')
+            console.log(e.name + ' is typing...')
+            // Handle the typing indication for other users here
+            // }
+        })
+    }
+
     useEffect(() => {
         if (peer && isOpenConvo) {
             // Fetch the messages when the conversation dialog was opened.
             fetchMessages()
+            listenForTypingEvents(peer.id)
         } else {
             // Clear the chatThread state when convesation dialog is closed.
             setChatThread([])
@@ -156,24 +180,24 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                         </div>
 
                         <Button
-                            radius="full"
-                            size="md"
+                            radius="sm"
+                            size="lg"
                             color="none"
                             isIconOnly
                             onClick={() => handleClose(false)}
                         >
                             <svg
-                                data-slot="icon"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                                className="size-12 text-gray-400 dark:text-white"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2"
+                                stroke="currentColor"
+                                className="size-7 text-gray-500 transition duration-300 ease-in-out hover:scale-125"
                             >
                                 <path
-                                    clipRule="evenodd"
-                                    fillRule="evenodd"
-                                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M6 18 18 6M6 6l12 12"
                                 />
                             </svg>
                         </Button>
@@ -204,38 +228,43 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                             )}
                         </div>
                     </ScrollShadow>
-                    <div className="flex w-full items-center gap-2 p-2">
-                        <Textarea
-                            minRows="1"
-                            maxRows="4"
-                            variant="flat"
-                            radius="md"
-                            size="lg"
-                            className="dark:dark"
-                            classNames={{
-                                inputWrapper:
-                                    'dark:bg-gray-900 dark:hover:bg-gray-800',
-                                input: 'dark:group-focus:bg-gray-800'
-                            }}
-                            value={message}
-                            onValueChange={setMessage}
-                        />
-                        <Button
-                            size="lg"
-                            isIconOnly
-                            radius="full"
-                            variant="none"
-                            onClick={handleSendMessage}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="size-8 text-blue-500"
+
+                    <div className="flex w-full flex-col gap-2 p-2">
+                        {isTyping && <TypingIndicator className="p-3" />}
+                        <div className="flex w-full gap-2 p-2">
+                            <Textarea
+                                minRows="1"
+                                maxRows="4"
+                                variant="flat"
+                                radius="md"
+                                size="lg"
+                                className="dark:dark"
+                                classNames={{
+                                    inputWrapper:
+                                        'dark:bg-gray-900 dark:hover:bg-gray-800',
+                                    input: 'dark:group-focus:bg-gray-800'
+                                }}
+                                value={message}
+                                onValueChange={setMessage}
+                                onKeyDown={sendTypingEvent}
+                            />
+                            <Button
+                                size="lg"
+                                isIconOnly
+                                radius="full"
+                                variant="none"
+                                onClick={handleSendMessage}
                             >
-                                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-                            </svg>
-                        </Button>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="size-8 text-blue-500"
+                                >
+                                    <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                                </svg>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}
