@@ -7,7 +7,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const [chatThread, setChatThread] = useState([])
     const [message, setMessage] = useState('')
 
-    // Chat box viewport.
+    // Chat box viewport reference.
     const chatContainerRef = useRef(null)
 
     // Scroll to the bottom of the chat box
@@ -64,19 +64,30 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                 message: message
             })
             .then(response => {
-                console.log('Message Payload: ', response)
+                console.log('Message Payload sending: ', response)
                 setMessage('')
+
+                setChatThread(prevChatThread => [
+                    response.data,
+                    ...prevChatThread
+                ])
+
+                // Scroll to the latest message.
+                setTimeout(() => {
+                    scrollToBottom()
+                }, 100)
             })
     }
 
+    // Fetch latest messages.
     const fetchMessages = () => {
         axios.get('/get-messages/' + peer.id).then(response => {
-            console.log('Thread: ', response.data)
+            // console.log('Thread: ', response.data)
             setChatThread(response.data.messages.data)
             nextPage = response.data.messages.next_page_url
 
             // Scroll to the latest message.
-            const timer = setTimeout(() => {
+            setTimeout(() => {
                 scrollToBottom()
             }, 100)
         })
@@ -84,8 +95,10 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
 
     useEffect(() => {
         if (peer && isOpenConvo) {
+            // Fetch the messages when the conversation dialog was opened.
             fetchMessages()
         } else {
+            // Clear the chatThread state when convesation dialog is closed.
             setChatThread([])
         }
 
@@ -95,12 +108,33 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
             chatContainer.addEventListener('scroll', handleScroll)
         }
 
+        // Listen to incoming messages...
+        const channel = Echo.private(`messages.${user.id}`).listen(
+            'MessageSent',
+            event => {
+                console.log('Message Payload: ', event)
+                setChatThread(prevChatThread => [
+                    event.message,
+                    ...prevChatThread
+                ])
+
+                setTimeout(() => {
+                    scrollToBottom()
+                }, 100)
+            }
+        )
+
         return () => {
             if (chatContainer) {
                 chatContainer.removeEventListener('scroll', handleScroll)
             }
+
+            // Cleanup function, stop listening to messages and leave channel
+            // after closing the conversation dialog.
+            channel.stopListening('MessageSent')
+            Echo.leaveChannel(`message.${user.id}`)
         }
-    }, [isOpenConvo, peer])
+    }, [isOpenConvo, peer, user.id])
 
     return (
         <>

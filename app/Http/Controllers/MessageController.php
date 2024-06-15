@@ -47,7 +47,7 @@ class MessageController extends Controller
         DB::commit();
 
         // Broadcast the message here if needed
-        broadcast(new MessageSent($message));
+        broadcast(new MessageSent($message->load(['sender'])));
 
         return response()->json($message->load('sender'), 201);
     }
