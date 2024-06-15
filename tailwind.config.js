@@ -17,10 +17,10 @@ export default {
             fontFamily: {
                 sans: [
                     'Inter',
-                    {
-                        fontFeatureSettings: '"cv11", "ss01"',
-                        fontVariationSettings: '"opsz" 32'
-                    },
+                    // {
+                    //     fontFeatureSettings: '"cv11", "ss01"',
+                    //     fontVariationSettings: '"opsz" 32'
+                    // },
                     ...defaultTheme.fontFamily.sans
                 ]
             }

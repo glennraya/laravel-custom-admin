@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Avatar, Button, Kbd, ScrollShadow, Textarea } from '@nextui-org/react'
+import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 import LoadingIcon from './LoadingIcon'
 import TypingIndicator from './TypingIndicator'
 
-const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
+const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
     // Chat box viewport reference.
     const chatContainerRef = useRef(null)
 
@@ -50,15 +50,16 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const handleClose = () => {
         onCloseConvo(false)
         setChatThread(null)
+        setMessage('')
     }
 
-    // Send message to your so-called friend.
+    // Send message to your friend (you hate).
     const [message, setMessage] = useState('')
     const handleSendMessage = async () => {
         await axios
             .post('/messages', {
                 sender_id: user.id,
-                recipient_id: peer.id,
+                recipient_id: recipient.id,
                 message: message
             })
             .then(response => {
@@ -80,7 +81,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     // Fetch latest messages and put the messages in the chatThread state.
     const [chatThread, setChatThread] = useState([])
     const fetchMessages = () => {
-        axios.get('/get-messages/' + peer.id).then(response => {
+        axios.get('/get-messages/' + recipient.id).then(response => {
             // console.log('Thread: ', response.data)
             setChatThread(response.data.messages.data)
             nextPage = response.data.messages.next_page_url
@@ -94,8 +95,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
 
     // Send Typing event
     const sendTypingEvent = () => {
-        console.log('Peer ', peer)
-        Echo.private(`messages.${peer.id}`).whisper('typing', {
+        Echo.private(`messages.${recipient.id}`).whisper('typing', {
             user_id: user.id,
             name: user.name
         })
@@ -124,10 +124,10 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     }
 
     useEffect(() => {
-        if (peer && isOpenConvo) {
+        if (recipient && isOpenConvo) {
             // Fetch the messages when the conversation dialog was opened.
             fetchMessages()
-            listenForTypingEvents(peer.id)
+            listenForTypingEvents(recipient.id)
         } else {
             // Clear the chatThread state when convesation dialog is closed.
             setChatThread([])
@@ -164,17 +164,19 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                 clearTimeout(typingTimeoutRef.current)
             }
 
+            setMessage('')
+
             // Cleanup function, stop listening to messages and leave channel
             // after closing the conversation dialog.
             channel.stopListening('MessageSent')
             Echo.leaveChannel(`message.${user.id}`)
         }
-    }, [isOpenConvo, peer, user.id])
+    }, [isOpenConvo, recipient, user.id])
 
     return (
         <>
             {isOpenConvo && (
-                <div className="absolute bottom-20 left-72 flex max-h-[600px] min-h-[500px] w-96 flex-col overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl dark:border-gray-800 dark:bg-black">
+                <div className="absolute bottom-20 left-72 flex max-h-[600px] min-h-[500px] w-96 flex-col overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl dark:border-gray-800 dark:bg-[#0e0e0e]">
                     <div className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 shadow-sm dark:border-gray-800">
                         <div className="flex w-[75%] gap-4">
                             <Avatar
@@ -182,11 +184,10 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                                 isBordered
                                 size="sm"
                                 color="success"
-                                className="shadow-lg shadow-green-400"
-                                src={`https://ui-avatars.com/api/?size=256&name=${peer.name}`}
+                                src={`https://ui-avatars.com/api/?size=256&name=${recipient.name}`}
                             />
                             <span className="flex-1 truncate font-medium dark:text-white">
-                                {peer.name}
+                                {recipient.name}
                             </span>
                         </div>
 
@@ -233,8 +234,12 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                                         />
                                     ))
                             ) : (
-                                <div className="m-auto flex text-center dark:text-gray-500">
-                                    Say Hi!
+                                <div className="m-auto text-center dark:text-gray-500">
+                                    You don't have any conversation with{' '}
+                                    <span className="whitespace-nowrap font-medium dark:text-white">
+                                        {recipient.name}
+                                    </span>{' '}
+                                    yet. Why don't you say hi!
                                 </div>
                             )}
                         </div>
@@ -242,27 +247,25 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
 
                     <div className="flex w-full flex-col gap-2 p-2">
                         {isTyping && <TypingIndicator className="p-3" />}
-                        <div className="flex w-full gap-2 p-2">
+                        <div className="flex w-full items-center gap-2 p-2">
                             <Textarea
                                 minRows="1"
                                 maxRows="4"
-                                variant="flat"
+                                variant="bordered"
                                 radius="md"
-                                size="lg"
+                                size="sm"
                                 className="dark:dark"
                                 classNames={{
                                     inputWrapper:
-                                        'dark:bg-gray-900 dark:hover:bg-gray-800',
-                                    input: 'dark:group-focus:bg-gray-800'
+                                        'dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:bg-yellow-500 dark:group-data-[focus=true]:border-gray-500 dark:text-white'
                                 }}
                                 value={message}
                                 onValueChange={setMessage}
                                 onKeyDown={sendTypingEvent}
                             />
                             <Button
-                                size="lg"
+                                size="sm"
                                 isIconOnly
-                                radius="full"
                                 variant="none"
                                 onClick={handleSendMessage}
                             >
@@ -270,7 +273,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="currentColor"
-                                    className="size-8 text-blue-500"
+                                    className="size-7 text-blue-500 dark:text-blue-700"
                                 >
                                     <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                                 </svg>

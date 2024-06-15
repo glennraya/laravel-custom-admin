@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 const AuthenticatedLayout = ({ user, children }) => {
     const [team, setTeam] = useState([])
     const [isOpenConvo, setIsOpenConvo] = useState(false)
-    const [peer, setPeer] = useState(null)
+    const [recipient, setRecipient] = useState(null)
 
     // Emit an event to the conversation dialog to close it.
     const handleCloseConvo = () => {
@@ -17,9 +17,9 @@ const AuthenticatedLayout = ({ user, children }) => {
     }
 
     // Load the user's conversation for the selected user.
-    const handleSelectUser = peer_id => {
+    const handleSelectUser = recipient => {
         setIsOpenConvo(true)
-        setPeer(peer_id)
+        setRecipient(recipient)
     }
 
     const [isTyping, setIsTyping] = useState(false)
@@ -94,7 +94,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                                 <h2 className="mb-4 text-lg font-bold dark:text-white">
                                     Friends{' '}
                                     <span className="text-sm text-gray-500 dark:text-gray-600">
-                                        (Who secretly hate you!)
+                                        (Who's secretly mad at you!)
                                     </span>
                                 </h2>
 
@@ -149,7 +149,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                 {/* Chat box */}
                 <ConversationPanel
                     user={user}
-                    peer={peer}
+                    recipient={recipient}
                     isOpenConvo={isOpenConvo}
                     onCloseConvo={handleCloseConvo}
                 />
