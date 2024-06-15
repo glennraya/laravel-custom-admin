@@ -29,7 +29,7 @@ const AuthenticatedLayout = ({ user, children }) => {
 
     return (
         <>
-            <div className="relative flex">
+            <div className="relative flex h-screen">
                 <div className="fixed inset-y-0 left-0 hidden flex-grow md:flex">
                     <div className="flex w-80 flex-grow flex-col gap-y-8">
                         <div className="flex flex-grow flex-col gap-y-8">
@@ -115,7 +115,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                     onCloseConvo={handleCloseConvo}
                 />
 
-                <main className="my-3 ml-0 mr-3 flex w-full flex-1 rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
+                <main className="my-3 ml-0 mr-3 flex w-full rounded-xl border border-gray-200 bg-white shadow-sm md:ml-80 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
                     {children}
                 </main>
             </div>

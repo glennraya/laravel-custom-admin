@@ -24,7 +24,6 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const handleScroll = () => {
         if (chatContainerRef.current) {
             if (chatContainerRef.current.scrollTop === 0) {
-                console.log('Reached the top')
                 handleLoadPreviousMessages()
             }
         }
@@ -32,11 +31,12 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
 
     // Load previous messages when the user scrolls up
     // from the conversation panel.
-    // const [isLoadingPrevMessages, setIsLoadingPrevMessages] = useState(false)
+    const [isLoadingPrevMessages, setIsLoadingPrevMessages] = useState(false)
     let nextPage = null
+
     const handleLoadPreviousMessages = async () => {
-        console.log('Next page ', nextPage)
-        // setIsLoadingPrevMessages(true)
+        // console.log('Next page ', nextPage)
+        setIsLoadingPrevMessages(true)
         if (nextPage)
             await axios.get(nextPage).then(response => {
                 nextPage = response.data.messages.next_page_url
@@ -44,7 +44,9 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                     ...prevChatThread,
                     ...response.data.messages.data
                 ])
+                setIsLoadingPrevMessages(false)
             })
+        setIsLoadingPrevMessages(false)
     }
 
     // Close the conversation dialog.
@@ -148,8 +150,8 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                         ref={chatContainerRef}
                         className="flex min-h-96 w-full flex-col overflow-y-scroll overscroll-contain p-4 py-8"
                     >
-                        {/* {isLoadingPrevMessages && <LoadingIcon />} */}
                         <div className="flex min-h-96 w-full flex-col gap-8">
+                            {isLoadingPrevMessages && <LoadingIcon />}
                             {chatThread.length > 0 ? (
                                 chatThread
                                     .slice()
