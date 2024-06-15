@@ -1,39 +1,51 @@
 import { useEffect, useRef, useState } from 'react'
 import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
+import LoadingIcon from './LoadingIcon'
 
 const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     const [chatThread, setChatThread] = useState([])
     const [message, setMessage] = useState('')
 
+    // Chat box viewport.
     const chatContainerRef = useRef(null)
+
+    // Scroll to the bottom of the chat box
+    // viewport to view the latest message.
     const scrollToBottom = () => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop =
                 chatContainerRef.current.scrollHeight
         }
-        // const timer = setTimeout(() => {
-        //     axios.get(nextMessage).then(response => {
-        //         console.log('Next Page: ', response)
-        //     })
-        // }, 300)
     }
 
-    useEffect(() => {
-        if (peer && isOpenConvo) {
-            axios.get('/get-messages/' + peer.id).then(response => {
-                console.log('Thread: ', response.data)
-                setChatThread(response.data.messages.data)
-
-                // Scroll to the latest message.
-                const timer = setTimeout(() => {
-                    scrollToBottom()
-                }, 100)
-            })
-        } else {
-            setChatThread([])
+    // Detect if we hit the ceiling of the chat box so
+    // we can load the previous messages.
+    const handleScroll = () => {
+        if (chatContainerRef.current) {
+            if (chatContainerRef.current.scrollTop === 0) {
+                console.log('Reached the top')
+                handleLoadPreviousMessages()
+            }
         }
-    }, [isOpenConvo, peer])
+    }
+
+    // Load previous messages when the user scrolls up
+    // from the conversation panel.
+    // const [isLoadingPrevMessages, setIsLoadingPrevMessages] = useState(false)
+    let nextPage = null
+    const handleLoadPreviousMessages = async () => {
+        console.log('Next page ', nextPage)
+        // setIsLoadingPrevMessages(true)
+        if (nextPage)
+            await axios.get(nextPage).then(response => {
+                nextPage = response.data.messages.next_page_url
+                setChatThread(prevChatThread => [
+                    ...prevChatThread,
+                    ...response.data.messages.data
+                ])
+            })
+    }
 
     // Close the conversation dialog.
     const handleClose = () => {
@@ -55,12 +67,45 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
             })
     }
 
+    const fetchMessages = () => {
+        axios.get('/get-messages/' + peer.id).then(response => {
+            console.log('Thread: ', response.data)
+            setChatThread(response.data.messages.data)
+            nextPage = response.data.messages.next_page_url
+
+            // Scroll to the latest message.
+            const timer = setTimeout(() => {
+                scrollToBottom()
+            }, 100)
+        })
+    }
+
+    useEffect(() => {
+        if (peer && isOpenConvo) {
+            fetchMessages()
+        } else {
+            setChatThread([])
+        }
+
+        // Add scroll listener to the chat box to detect if it hits the top.
+        const chatContainer = chatContainerRef.current
+        if (chatContainer) {
+            chatContainer.addEventListener('scroll', handleScroll)
+        }
+
+        return () => {
+            if (chatContainer) {
+                chatContainer.removeEventListener('scroll', handleScroll)
+            }
+        }
+    }, [isOpenConvo, peer])
+
     return (
         <>
             {isOpenConvo && (
                 <div className="absolute bottom-20 left-72 flex max-h-[600px] min-h-[500px] w-96 flex-col overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl dark:border-gray-800 dark:bg-black">
                     <div className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 shadow-sm dark:border-gray-800">
-                        <div className="flex gap-4">
+                        <div className="flex w-[75%] gap-4">
                             <Avatar
                                 radius="full"
                                 isBordered
@@ -69,7 +114,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                                 className="shadow-lg shadow-green-400"
                                 src={`https://ui-avatars.com/api/?size=256&name=${peer.name}`}
                             />
-                            <span className="font-medium dark:text-white">
+                            <span className="flex-1 truncate font-medium dark:text-white">
                                 {peer.name}
                             </span>
                         </div>
@@ -101,28 +146,26 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
                     <ScrollShadow
                         size={25}
                         ref={chatContainerRef}
-                        className="flex min-h-96 w-full flex-col overflow-y-scroll p-4 py-8"
+                        className="flex min-h-96 w-full flex-col overflow-y-scroll overscroll-contain p-4 py-8"
                     >
-                        <div className="flex w-full flex-col gap-8">
-                            {chatThread
-                                .slice()
-                                .reverse()
-                                .map(thread => (
-                                    <ConvoBubble
-                                        user={user} // -> The currently authenticated user.
-                                        message={thread} // -> The message thread.
-                                        key={thread.id}
-                                    />
-                                ))}
-                            {/* {chatThread.length > 0
-                                ? chatThread.map(thread => (
-                                      <ConvoBubble
-                                          user={user} // -> The currently authenticated user.
-                                          message={thread} // -> The message thread.
-                                          key={thread.id}
-                                      />
-                                  ))
-                                : null} */}
+                        {/* {isLoadingPrevMessages && <LoadingIcon />} */}
+                        <div className="flex min-h-96 w-full flex-col gap-8">
+                            {chatThread.length > 0 ? (
+                                chatThread
+                                    .slice()
+                                    .reverse()
+                                    .map(thread => (
+                                        <ConvoBubble
+                                            user={user} // -> The currently authenticated user.
+                                            thread={thread}
+                                            key={thread.id}
+                                        />
+                                    ))
+                            ) : (
+                                <div className="m-auto flex text-center dark:text-gray-500">
+                                    Say Hi!
+                                </div>
+                            )}
                         </div>
                     </ScrollShadow>
                     <div className="flex w-full items-center gap-2 p-2">

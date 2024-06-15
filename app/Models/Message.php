@@ -29,7 +29,7 @@ class Message extends Model
     public function createdAt(): Attribute
     {
         return new Attribute(
-            get: fn($value) => Carbon::parse($this->attributes['created_at'])->diffForHumans(),
+            get: fn ($value) => Carbon::parse($this->attributes['created_at'])->diffForHumans(),
         );
     }
 }

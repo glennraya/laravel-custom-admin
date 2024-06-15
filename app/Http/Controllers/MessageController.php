@@ -47,13 +47,13 @@ class MessageController extends Controller
         DB::commit();
 
         // Broadcast the message here if needed
-        // broadcast(new MessageSent($message));
+        broadcast(new MessageSent($message));
 
         return response()->json($message->load('sender'), 201);
     }
 
     /**
-     * Display the specified resource.
+     * Load the conversation.
      */
     public function show(Request $request)
     {
@@ -64,13 +64,13 @@ class MessageController extends Controller
             $query->where('sender_id', $auth_user_id)
                 ->where('recipient_id', $user_id);
         })
-        ->orWhere(function ($query) use ($auth_user_id, $user_id) {
-            $query->where('sender_id', $user_id)
-                ->where('recipient_id', $auth_user_id);
-        })
-        ->with(['sender', 'recipient'])
-        ->orderBy('id', 'desc')
-        ->paginate(7);
+            ->orWhere(function ($query) use ($auth_user_id, $user_id) {
+                $query->where('sender_id', $user_id)
+                    ->where('recipient_id', $auth_user_id);
+            })
+            ->with(['sender', 'recipient'])
+            ->orderBy('id', 'desc')
+            ->paginate(7);
 
         return response()->json([
             'messages' => $messages,
