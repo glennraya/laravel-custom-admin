@@ -33,7 +33,6 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     let nextPage = null
 
     const handleLoadPreviousMessages = async () => {
-        // console.log('Next page ', nextPage)
         setIsLoadingPrevMessages(true)
         if (nextPage)
             await axios.get(nextPage).then(response => {

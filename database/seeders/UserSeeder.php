@@ -17,10 +17,11 @@ class UserSeeder extends Seeder
         $roles = [
             'Software Engineer', 'DevOps', 'Database Analyst', 'Cyber Security Consultant', 'Project Manager',
             'System Architect', 'QA Engineer', 'Product Owner', 'UI/UX Designer', 'Scrum Master',
+            'Data Scientist', 'Frontend Developer', 'Backend Developer', 'Mobile App Developer', 'Business Analyst',
+            'Cloud Solutions Architect', 'Machine Learning Engineer', 'Network Administrator', 'IT Support Specialist', 'Full Stack Developer'
         ];
-        shuffle($roles);
 
-        foreach ($roles as $role) {
+        foreach ($roles as $index => $role) {
             User::create([
                 'name' => fake()->name(),
                 'role' => $role,
@@ -31,10 +32,5 @@ class UserSeeder extends Seeder
                 'remember_token' => Str::random(10),
             ]);
         }
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }

@@ -2,8 +2,9 @@ import ConversationPanel from '@/Components/ConversationPanel'
 import { HomeIcon, InboxIcon, DocIcon } from '@/Components/Icons'
 import NavLink from '@/Components/NavLink'
 import ProfileDropdown from '@/Components/ProfileDropdown'
+import TypingIndicator from '@/Components/TypingIndicator'
 import { Avatar, ScrollShadow } from '@nextui-org/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const AuthenticatedLayout = ({ user, children }) => {
     const [team, setTeam] = useState([])
@@ -21,10 +22,41 @@ const AuthenticatedLayout = ({ user, children }) => {
         setPeer(peer_id)
     }
 
+    const [isTyping, setIsTyping] = useState(false)
+    const typingTimeoutRef = useRef(null)
+    const [typingScope, setTypingScope] = useState(null)
+    const listenForTypingEvents = () => {
+        Echo.private(`messages.${user.id}`).listenForWhisper(
+            'typing',
+            event => {
+                console.log('Payload ', event)
+                if (event.user_id !== user.id) {
+                    setIsTyping(true)
+                    setTypingScope(event.user_id)
+                    // Clear any existing timeout to prevent multiple timers
+                    if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current)
+                    }
+                    // Set a new timeout to hide the typing indicator after 2 seconds
+                    typingTimeoutRef.current = setTimeout(() => {
+                        setIsTyping(false)
+                    }, 2000)
+                }
+            }
+        )
+    }
+
     useEffect(() => {
         axios.get('/team').then(response => {
             setTeam(response.data)
         })
+        listenForTypingEvents(user.id)
+
+        return () => {
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current)
+            }
+        }
     }, [])
 
     return (
@@ -72,7 +104,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                                 >
                                     {team.map(member => (
                                         <div
-                                            className="flex cursor-pointer items-center gap-2 px-4 py-1"
+                                            className="flex cursor-pointer items-center gap-4 px-4 py-1"
                                             key={member.id}
                                             onClick={() =>
                                                 handleSelectUser(member)
@@ -86,16 +118,23 @@ const AuthenticatedLayout = ({ user, children }) => {
                                                         ? 'success'
                                                         : 'default'
                                                 }
-                                                className={`shadow-lg ${member.active === 1 ? 'shadow-green-400' : null}`}
+                                                className={`flex-none shadow-lg ${member.active === 1 ? 'shadow-green-400' : null}`}
                                                 src={`https://ui-avatars.com/api/?size=256&name=${member.name}`}
                                             />
-                                            <div className="flex flex-col">
+                                            <div className="relative flex w-full flex-col">
                                                 <span className="flex cursor-pointer text-medium font-medium dark:text-white">
                                                     {member.name}
                                                 </span>
                                                 <span className="text-sm text-default-500">
                                                     {member.role}
                                                 </span>
+                                                {isTyping &&
+                                                    typingScope ===
+                                                        member.id && (
+                                                        <span className="absolute bottom-0 right-4">
+                                                            <TypingIndicator />
+                                                        </span>
+                                                    )}
                                             </div>
                                         </div>
                                     ))}
