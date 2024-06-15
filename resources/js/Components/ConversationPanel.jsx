@@ -5,11 +5,6 @@ import LoadingIcon from './LoadingIcon'
 import TypingIndicator from './TypingIndicator'
 
 const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
-    const [chatThread, setChatThread] = useState([])
-    const [message, setMessage] = useState('')
-    const [isTyping, setIsTyping] = useState(false)
-    const [peerUser, setPeerUser] = useState(null)
-
     // Chat box viewport reference.
     const chatContainerRef = useRef(null)
 
@@ -59,6 +54,7 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     }
 
     // Send message to your so-called friend.
+    const [message, setMessage] = useState('')
     const handleSendMessage = async () => {
         await axios
             .post('/messages', {
@@ -82,7 +78,8 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
             })
     }
 
-    // Fetch latest messages.
+    // Fetch latest messages and put the messages in the chatThread state.
+    const [chatThread, setChatThread] = useState([])
     const fetchMessages = () => {
         axios.get('/get-messages/' + peer.id).then(response => {
             // console.log('Thread: ', response.data)
@@ -106,14 +103,25 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
     }
 
     // Function to listen for typing events
+    const [isTyping, setIsTyping] = useState(false)
+    const typingTimeoutRef = useRef(null)
     const listenForTypingEvents = () => {
-        Echo.private(`messages.${user.id}`).listenForWhisper('typing', e => {
-            // if (e.user_id !== currentUser.id) {
-            console.log('typing.....')
-            console.log(e.name + ' is typing...')
-            // Handle the typing indication for other users here
-            // }
-        })
+        Echo.private(`messages.${user.id}`).listenForWhisper(
+            'typing',
+            event => {
+                if (event.user_id !== user.id) {
+                    setIsTyping(true)
+                    // Clear any existing timeout to prevent multiple timers
+                    if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current)
+                    }
+                    // Set a new timeout to hide the typing indicator after 2 seconds
+                    typingTimeoutRef.current = setTimeout(() => {
+                        setIsTyping(false)
+                    }, 2000)
+                }
+            }
+        )
     }
 
     useEffect(() => {
@@ -151,6 +159,10 @@ const ConversationPanel = ({ user, peer, isOpenConvo, onCloseConvo }) => {
         return () => {
             if (chatContainer) {
                 chatContainer.removeEventListener('scroll', handleScroll)
+            }
+
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current)
             }
 
             // Cleanup function, stop listening to messages and leave channel

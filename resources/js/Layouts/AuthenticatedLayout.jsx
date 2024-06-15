@@ -35,7 +35,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                         <div className="flex flex-grow flex-col gap-y-8">
                             <nav className="flex flex-col">
                                 <h1 className="p-6 text-xl font-bold dark:text-white">
-                                    Shouting Whisperer
+                                    Reverb Whisperer
                                 </h1>
 
                                 <div className="flex flex-col gap-y-2 border-t border-gray-300 px-4 pt-8 font-medium dark:border-gray-900">
