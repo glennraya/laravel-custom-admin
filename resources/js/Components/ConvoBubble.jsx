@@ -8,7 +8,7 @@ const ConvoBubble = ({ user, thread }) => {
             >
                 <div className="flex max-w-[75%] flex-col">
                     <p
-                        className={`-mt-4 whitespace-pre-wrap rounded-xl ${user.id === thread.sender.id ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-900'} p-2 px-4 dark:text-white ${user.id === thread.sender.id ? 'text-white dark:bg-blue-950' : 'bg-gray-200'}`}
+                        className={`-mt-4 whitespace-pre-wrap rounded-xl ${user.id === thread.sender.id ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-600'} p-2 px-4 dark:text-white ${user.id === thread.sender.id ? 'text-white dark:bg-sky-800' : 'bg-gray-200'}`}
                     >
                         {thread.message}
                     </p>

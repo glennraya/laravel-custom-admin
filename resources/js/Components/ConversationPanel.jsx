@@ -3,6 +3,8 @@ import { Avatar, Button, ScrollShadow, Textarea } from '@nextui-org/react'
 import ConvoBubble from './ConvoBubble'
 import LoadingIcon from './LoadingIcon'
 import TypingIndicator from './TypingIndicator'
+import elasticScroll from 'elastic-scroll-polyfill'
+import ElasticScroll from './ElasticScroll'
 
 const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
     // Chat box viewport reference.
@@ -176,14 +178,14 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
     return (
         <>
             {isOpenConvo && (
-                <div className="absolute bottom-20 left-72 flex max-h-[600px] min-h-[500px] w-96 flex-col overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl dark:border-gray-800 dark:bg-[#0e0e0e]">
-                    <div className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 shadow-sm dark:border-gray-800">
+                <div className="absolute bottom-8 right-8 flex max-h-[600px] min-h-[500px] w-96 flex-col overflow-hidden rounded-xl border border-gray-300 bg-white shadow-2xl dark:border-gray-600 dark:bg-gray-700">
+                    <div className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 shadow-sm dark:border-gray-600">
                         <div className="flex w-[75%] gap-4">
                             <Avatar
                                 radius="full"
                                 isBordered
                                 size="sm"
-                                color="success"
+                                color="default"
                                 src={`https://ui-avatars.com/api/?size=256&name=${recipient.name}`}
                             />
                             <span className="flex-1 truncate font-medium dark:text-white">
@@ -215,35 +217,38 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
                         </Button>
                     </div>
 
-                    <ScrollShadow
-                        size={25}
-                        ref={chatContainerRef}
-                        className="flex min-h-96 w-full flex-col overflow-y-scroll overscroll-contain p-4 py-8"
-                    >
-                        <div className="flex min-h-96 w-full flex-col gap-8">
-                            {isLoadingPrevMessages && <LoadingIcon />}
-                            {chatThread.length > 0 ? (
-                                chatThread
-                                    .slice()
-                                    .reverse()
-                                    .map(thread => (
-                                        <ConvoBubble
-                                            user={user} // -> The currently authenticated user.
-                                            thread={thread}
-                                            key={thread.id}
-                                        />
-                                    ))
-                            ) : (
-                                <div className="m-auto text-center dark:text-gray-500">
-                                    You don't have any conversation with{' '}
-                                    <span className="whitespace-nowrap font-medium dark:text-white">
-                                        {recipient.name}
-                                    </span>{' '}
-                                    yet. Why don't you say hi!
-                                </div>
-                            )}
-                        </div>
-                    </ScrollShadow>
+                    <ElasticScroll>
+                        <ScrollShadow
+                            data-elastic-wrapper
+                            size={25}
+                            ref={chatContainerRef}
+                            className="flex min-h-96 w-full flex-col overflow-y-scroll overscroll-contain p-4 py-8"
+                        >
+                            <div className="flex min-h-96 w-full flex-col gap-8">
+                                {isLoadingPrevMessages && <LoadingIcon />}
+                                {chatThread.length > 0 ? (
+                                    chatThread
+                                        .slice()
+                                        .reverse()
+                                        .map(thread => (
+                                            <ConvoBubble
+                                                user={user} // -> The currently authenticated user.
+                                                thread={thread}
+                                                key={thread.id}
+                                            />
+                                        ))
+                                ) : (
+                                    <div className="m-auto text-center text-gray-600 dark:text-gray-500">
+                                        You don't have any conversation with{' '}
+                                        <span className="whitespace-nowrap font-medium text-black dark:text-white">
+                                            {recipient.name}
+                                        </span>{' '}
+                                        yet. Why don't you say hi!
+                                    </div>
+                                )}
+                            </div>
+                        </ScrollShadow>
+                    </ElasticScroll>
 
                     <div className="flex w-full flex-col gap-2 p-2">
                         {isTyping && <TypingIndicator className="p-3" />}
@@ -257,7 +262,7 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
                                 className="dark:dark"
                                 classNames={{
                                     inputWrapper:
-                                        'dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:bg-yellow-500 dark:group-data-[focus=true]:border-gray-500 dark:text-white'
+                                        'dark:bg-gray-600 dark:border-gray-500 group-data-[focus=true]:border-gray-300 dark:group-data-[focus=true]:border-gray-500 dark:text-white'
                                 }}
                                 value={message}
                                 onValueChange={setMessage}

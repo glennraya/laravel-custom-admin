@@ -9,7 +9,7 @@
 }
 .dot {
     animation: 1s blink infinite;
-    fill: grey;
+    fill: whitesmoke;
 }
 .dot:nth-child(2) {
     animation-delay: 250ms;
@@ -19,7 +19,5 @@
 }
 
 .loader {
-    background-color: #f1f1f1;
     border-radius: 10px;
-    color: grey;
 }
