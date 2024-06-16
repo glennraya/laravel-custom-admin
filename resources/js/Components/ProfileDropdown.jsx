@@ -19,7 +19,7 @@ const ProfileDropdown = ({ user }) => {
                     <User
                         as="button"
                         avatarProps={{
-                            src: 'https://i.pravatar.cc/150?u=a042581f4e29026024d'
+                            src: `https://ui-avatars.com/api/?size=256&name=${user.name}`
                         }}
                         className="text-2xl transition-transform dark:text-white"
                         description={

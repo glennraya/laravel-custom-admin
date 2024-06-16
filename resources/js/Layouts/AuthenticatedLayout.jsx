@@ -1,5 +1,5 @@
 import { HomeIcon, InboxIcon, DocIcon } from '@/Components/Icons'
-import { Avatar, ScrollShadow } from '@nextui-org/react'
+import { Avatar, ScrollShadow, Switch, cn } from '@nextui-org/react'
 import { useEffect, useRef, useState } from 'react'
 import NavLink from '@/Components/NavLink'
 import ProfileDropdown from '@/Components/ProfileDropdown'
@@ -21,31 +21,30 @@ const AuthenticatedLayout = ({ user, children }) => {
         setRecipient(recipient)
     }
 
+    // Listen for typing events.
     const [isTyping, setIsTyping] = useState(false)
     const typingTimeoutRef = useRef(null)
-    const [typingScope, setTypingScope] = useState(null)
+    const [typingNotifRecipient, setTypingNotifRecipient] = useState(null)
     const listenForTypingEvents = () => {
         Echo.private(`messages.${user.id}`).listenForWhisper(
             'typing',
             event => {
-                console.log('Payload ', event)
-                if (event.user_id !== user.id) {
-                    setIsTyping(true)
-                    setTypingScope(event.user_id)
+                setIsTyping(true)
+                setTypingNotifRecipient(event.sender_id)
 
-                    // Clear any existing timeout to prevent multiple timers
-                    if (typingTimeoutRef.current) {
-                        clearTimeout(typingTimeoutRef.current)
-                    }
-
-                    // Set a new timeout to hide the typing indicator after 2 seconds
-                    typingTimeoutRef.current = setTimeout(() => {
-                        setIsTyping(false)
-                    }, 2000)
+                // Clear any existing timeout to prevent multiple timers
+                if (typingTimeoutRef.current) {
+                    clearTimeout(typingTimeoutRef.current)
                 }
+
+                // Set a new timeout to hide the typing indicator after 2 seconds
+                typingTimeoutRef.current = setTimeout(() => {
+                    setIsTyping(false)
+                }, 2000)
             }
         )
     }
+    // End: Listen for typing events.
 
     const [team, setTeam] = useState([])
     useEffect(() => {
@@ -106,7 +105,7 @@ const AuthenticatedLayout = ({ user, children }) => {
                                     <ScrollShadow
                                         size={50}
                                         hideScrollBar
-                                        className="flex h-[500px] flex-col gap-4 overflow-y-scroll scroll-smooth py-2"
+                                        className="flex h-[400px] flex-col gap-4 overflow-y-scroll scroll-smooth py-2"
                                     >
                                         {team.map(member => (
                                             <div
@@ -131,11 +130,11 @@ const AuthenticatedLayout = ({ user, children }) => {
                                                     <span className="flex cursor-pointer text-medium font-medium dark:text-white">
                                                         {member.name}
                                                     </span>
-                                                    <span className="text-sm text-default-500">
+                                                    <span className="w-full truncate text-sm text-default-500">
                                                         {member.role}
                                                     </span>
                                                     {isTyping &&
-                                                        typingScope ===
+                                                        typingNotifRecipient ===
                                                             member.id && (
                                                             <span className="absolute -right-4 bottom-0">
                                                                 <TypingIndicator />

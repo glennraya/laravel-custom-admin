@@ -98,29 +98,30 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
     // Send Typing event
     const sendTypingEvent = () => {
         Echo.private(`messages.${recipient.id}`).whisper('typing', {
-            user_id: user.id,
-            name: user.name
+            sender_id: user.id
         })
     }
 
     // Function to listen for typing events
     const [isTyping, setIsTyping] = useState(false)
     const typingTimeoutRef = useRef(null)
+    const [typingNotifRecipient, setTypingNotifRecipient] = useState(null)
     const listenForTypingEvents = () => {
         Echo.private(`messages.${user.id}`).listenForWhisper(
             'typing',
             event => {
-                if (event.user_id !== user.id) {
-                    setIsTyping(true)
-                    // Clear any existing timeout to prevent multiple timers
-                    if (typingTimeoutRef.current) {
-                        clearTimeout(typingTimeoutRef.current)
-                    }
-                    // Set a new timeout to hide the typing indicator after 2 seconds
-                    typingTimeoutRef.current = setTimeout(() => {
-                        setIsTyping(false)
-                    }, 2000)
+                setIsTyping(true)
+                setTypingNotifRecipient(event.sender_id)
+
+                // Clear any existing timeout to prevent multiple timers
+                if (typingTimeoutRef.current) {
+                    clearTimeout(typingTimeoutRef.current)
                 }
+
+                // Set a new timeout to hide the typing indicator after 2 seconds
+                typingTimeoutRef.current = setTimeout(() => {
+                    setIsTyping(false)
+                }, 2000)
             }
         )
     }
@@ -167,6 +168,7 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
             }
 
             setMessage('')
+            setTypingNotifRecipient(null)
 
             // Cleanup function, stop listening to messages and leave channel
             // after closing the conversation dialog.
@@ -251,7 +253,10 @@ const ConversationPanel = ({ user, recipient, isOpenConvo, onCloseConvo }) => {
                     </ElasticScroll>
 
                     <div className="flex w-full flex-col gap-2 p-2">
-                        {isTyping && <TypingIndicator className="p-3" />}
+                        {/* Typing indicator */}
+                        {isTyping && recipient.id === typingNotifRecipient && (
+                            <TypingIndicator className="p-3" />
+                        )}
                         <div className="flex w-full items-center gap-2 p-2">
                             <Textarea
                                 minRows="1"
